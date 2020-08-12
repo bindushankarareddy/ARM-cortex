@@ -1,0 +1,116 @@
+#include <stdio.h>
+#include "mbed.h"
+#include "TextLCD.h"
+#include "Keypad.h"
+
+Serial pc(PTE0, PTE1);
+
+DigitalIn R1(PTC12);
+DigitalIn R2(PTC13);
+
+//Configuración de la pantalla
+TextLCD lcd(PTE20,PTE21,PTE22,PTE23,PTE29,PTE30, TextLCD::LCD16x2); // Rs, E, d4, d5, d6, d7
+
+char temp[4];
+char templ[4];
+char temp2[4];
+
+char rf[4];
+
+int amt;
+
+void delay()
+{
+    long i,j;
+    for(i=0; i<10000000; i++) {
+        j=i/10;
+        j=j/2;
+    }
+}
+
+void delay2()
+{
+    long i,j;
+    for(i=0; i<50000000; i++) {
+        j=i/10;
+        j=j/2;
+    }
+}
+
+void delay3()
+{
+    long i,j;
+    for(i=0; i<150000000; i++) {
+        j=i/10;
+        j=j/2;
+    }
+}
+
+char gsmf1,gsmf2;
+
+int main()
+{
+    pc.baud(9600);
+
+    lcd.locate(0,0);
+    lcd.printf("RF Bus Detection");
+    pc.printf("AT");
+    delay2();
+        pc.putc(13);
+    pc.putc(10);
+    
+    pc.printf("AT+CMGF=1");
+    delay2();
+    pc.putc(13);
+    pc.putc(10);
+    
+    while(1) {
+
+
+        if(R1==0) {
+            lcd.locate(0,1);
+            lcd.printf("Bus No:1");
+            if(gsmf1==0) {
+                pc.printf("AT+CMGS=\"9884143735\"");
+                delay2();
+                pc.putc(13);
+                pc.putc(10);
+                delay2();
+                pc.printf("Bus 1");
+                delay2();
+                pc.putc(26);
+                delay2();
+                gsmf1=1;
+                gsmf2=0;
+            }
+        } else if(R2==0) {
+            lcd.locate(0,1);
+            lcd.printf("Bus No:2");
+            if(gsmf2==0) {
+                pc.printf("AT+CMGS=\"9884143735\"");
+                delay2();
+                pc.putc(13);
+                pc.putc(10);
+                delay2();
+                pc.printf("Bus 2");
+                delay2();
+                pc.putc(26);
+                delay2();
+                gsmf2=1;
+                gsmf1=0;
+            }
+
+        } else {
+            lcd.locate(0,1);
+            lcd.printf("        ");
+            gsmf2=0;
+            gsmf1=0;
+
+        }
+
+
+        delay();
+
+
+    } // while(1)
+} 
